@@ -4,7 +4,7 @@
 Поднимаем 2 виртуалки: `cobbler` с настроенным cobbler и `client`.
 Заходим на сервер `cobbler` через веб-интерфейс:
 
-![Image alt]
+![Image alt](https://github.com/GuliMari/24-Cobbler/blob/main/cobbler_system.png)
 
 Смотрим инфо о смонтированном образе:
 
