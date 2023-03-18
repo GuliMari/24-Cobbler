@@ -4,7 +4,10 @@
 Поднимаем 2 виртуалки: `cobbler` с настроенным cobbler и `client`.
 Заходим на сервер `cobbler` через веб-интерфейс:
 
+![Image alt]
+
 Смотрим инфо о смонтированном образе:
+
 ```bash
 [root@cobbler ~]# cobbler distro report --name=CentOS-7-x86_64
 Name                           : CentOS-7-x86_64
@@ -25,7 +28,9 @@ Red Hat Management Key         : <<inherit>>
 Red Hat Management Server      : <<inherit>>
 Template Files                 : {}
 ```
+
 Инфо о системе:
+
 ```bash
 [root@cobbler ~]# cobbler distro report --name=CentOS-7-x86_64
 Name                           : CentOS-7-x86_64
