@@ -1,0 +1,13 @@
+---
+
+default_password_crypted: "$1$R6RwOcGy$xuHVW12sO2L4pckeLgp.H."
+server: 10.0.0.20
+next_server: 10.0.0.20
+dhcp_range_start: 10.0.0.100
+dhcp_range_end: 10.0.0.150
+distro_mnt: /mnt
+distro_name: CentOS-7
+distro_arch: x86_64
+system_name: centos7
+
+...

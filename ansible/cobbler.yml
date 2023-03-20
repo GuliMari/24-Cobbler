@@ -1,0 +1,139 @@
+- name: Set up Cobbler Server
+  hosts: servers
+  become: true
+  vars_files:
+    - host_vars/main.yml
+  tasks:
+  - name: Disable Selinux
+    ansible.posix.selinux:
+      state: disabled
+
+  - name: Update all packages
+    ansible.builtin.yum:
+      name: '*'
+      state: latest
+      update_cache: true
+  
+  - name: Unconditionally reboot the machine with all defaults
+    ansible.builtin.reboot:
+ 
+  - name: Install Epel-release
+    ansible.builtin.yum:
+      name: epel-release
+      state: latest
+
+  - name: Install softs on CentOS
+    ansible.builtin.yum:
+      name:
+        - httpd
+        - tftp-server
+        - dhcp
+        - cobbler
+        - cobbler-web
+        - debmirror
+        - pykickstart
+        - system-config-kickstart
+        - dnsmasq
+        - xinetd
+        - syslinux
+        - fence-agents
+      state: present
+  - name: Configure cobbler settings
+    ansible.builtin.template:
+      src: settings.j2
+      dest: /etc/cobbler/settings
+
+  - name: Configure cobbler dhcp.template
+    ansible.builtin.template:
+      src: dhcp.template.j2
+      dest: /etc/cobbler/dhcp.template
+
+  - name: Configure cobbler dnsmasq.template
+    ansible.builtin.template:
+      src: dnsmasq.template.j2
+      dest: /etc/cobbler/dnsmasq.template
+
+  - name: Configure cobbler modules.conf
+    ansible.builtin.template:
+      src: modules.conf.j2
+      dest: /etc/cobbler/modules.conf
+
+  - name: Configure tftp settings
+    ansible.builtin.template:
+      src: tftp.j2
+      dest: /etc/xinetd.d/tftp
+ 
+  - name: Configure dhcpd settings
+    ansible.builtin.template:
+      src: dhcp.template.j2
+      dest: /etc/dhcp/dhcpd.conf
+
+  - name: Restart services
+    ansible.builtin.systemd:
+      name: "{{ item }}"
+      state: restarted
+      enabled: true
+    with_items:
+      - cobblerd
+      - httpd
+      - xinetd
+      - tftp
+
+  - name: Commit Cobbler changes
+    community.general.cobbler_sync:
+      host: "{{ server }}"
+      username: cobbler
+      password: cobbler
+      use_ssl: false
+    run_once: true
+
+#  - name: Download ISO image CentOS 7.9.2009
+#    get_url:
+#      url: https://mirror.yandex.ru/centos/7.9.2009/isos/x86_64/CentOS-7-x86_64-Everything-2009.iso
+#      dest: ~/CentOS-7-x86_64-DVD-2009.iso
+#      mode: '0755'
+
+  - name: Copy ISO image
+    ansible.builtin.copy:
+      src: /home/tw4/Downloads/CentOS-7-x86_64-Everything-2009.iso
+      dest: /root/
+      #remote_src: true
+      directory_mode: true
+
+  - name: Mount ISO image
+    mount:
+      path: "{{ distro_mnt }}"
+      src: /root/CentOS-7-x86_64-Everything-2009.iso
+      fstype: iso9660
+      opts: ro,loop
+      state: mounted
+
+  - name: Import distro into cobbler
+    ansible.builtin.command: cobbler import --arch={{ distro_arch }} --path={{ distro_mnt }} --name={{ distro_name }}
+
+  - name: Copy ks.cfg
+    ansible.builtin.template:
+      src: ks.cfg
+      dest: /var/lib/cobbler/kickstarts/ks.cfg
+      owner: root
+      group: root
+      mode: 0755
+  
+  - name: Ensure the system exists in Cobbler
+    community.general.cobbler_system:
+      host: "{{ server }}"
+      username: cobbler
+      password: cobbler
+      use_ssl: false
+      name: "{{ system_name }}"
+      properties:
+        profile: "{{ distro_name }}-{{ distro_arch }}"
+        kickstart: /var/lib/cobbler/kickstarts/ks.cfg
+
+  - name: Commit Cobbler changes
+    community.general.cobbler_sync:
+      host: "{{ server }}"
+      username: cobbler
+      password: cobbler
+      use_ssl: false
+    run_once: true
