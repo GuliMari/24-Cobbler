@@ -99,3 +99,9 @@ Virt PXE Boot                  : 0
 Virt RAM (MB)                  : <<inherit>>
 Virt Type                      : <<inherit>>
 ```
+
+Запускаем клиент и выбираем в появившемся меню `CentOS7`, после чего начнется автозагрузка:
+
+![Image alt](https://github.com/GuliMari/24-Cobbler/blob/main/menu.png)
+
+![Image alt](https://github.com/GuliMari/24-Cobbler/blob/main/%D0%B0%D0%B2%D1%82%D0%BE%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B7%D0%BA%D0%B0.png)
